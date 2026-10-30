@@ -1,0 +1,53 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below, together with the article and the source images (doi:10.17612/V09Y-AW80)."
+title: "drp-carbonates: resolution-aware digital characterisation of carbonate micro-CT stacks"
+version: 1.0.0
+doi: "10.5281/zenodo.23818175"
+license: MIT
+date-released: 2026-10-30
+authors:
+  - family-names: "Cardoso"
+    given-names: "Jean Firmino"
+    orcid: "https://orcid.org/0000-0001-6092-713X"
+    affiliation: "Department of Nuclear Energy, Federal University of Pernambuco (UFPE), Recife, Brazil"
+  - family-names: "Silva"
+    given-names: "Daiane Francisca do Nascimento"
+    orcid: "https://orcid.org/0000-0002-1057-7335"
+    affiliation: "Department of Nuclear Energy, Federal University of Pernambuco (UFPE), Recife, Brazil"
+  - family-names: "Santos Neto"
+    given-names: "Severino Martins dos"
+    orcid: "https://orcid.org/0000-0003-2940-2129"
+    affiliation: "Department of Nuclear Energy, Federal University of Pernambuco (UFPE), Recife, Brazil"
+  - family-names: "Reichert"
+    given-names: "José Miguel"
+    orcid: "https://orcid.org/0000-0001-9943-2898"
+    affiliation: "Department of Nuclear Energy, Federal University of Pernambuco (UFPE), Recife, Brazil; Department of Soils, Federal University of Pelotas (UFPel), Capão do Leão, Brazil"
+  - family-names: "Milian Pérez"
+    given-names: "Daniel"
+    orcid: "https://orcid.org/0000-0002-3172-0508"
+    affiliation: "Department of Nuclear Energy, Federal University of Pernambuco (UFPE), Recife, Brazil"
+  - family-names: "Antonino"
+    given-names: "Antonio Celso Dantas"
+    orcid: "https://orcid.org/0000-0002-4120-9404"
+    affiliation: "Department of Nuclear Energy, Federal University of Pernambuco (UFPE), Recife, Brazil"
+keywords:
+  - digital rock physics
+  - micro-CT
+  - carbonates
+  - segmentation
+  - representative elementary volume
+  - specific surface area
+  - box-counting dimension
+references:
+  - type: dataset
+    title: "Carbonates: porosity and permeability voxel to voxel"
+    authors:
+      - family-names: Ferreira
+        given-names: L.
+      - family-names: Surmas
+        given-names: R.
+      - family-names: Silva
+        given-names: M.
+      - family-names: Peçanha
+        given-names: R.
+    doi: 10.17612/V09Y-AW80

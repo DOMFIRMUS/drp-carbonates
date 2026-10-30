@@ -1,0 +1,248 @@
+# =============================================================================
+# Configuration of the carbonate digital-rock analysis pipeline.
+# Every number that ends up in the manuscript is derived from this file plus
+# the raw TIFF stacks. Paths are relative to the directory of this file.
+# =============================================================================
+
+[project]
+title = "Resolution-conditioned digital characterization of two carbonates"
+output_dir = "outputs"
+seed = 20250923
+
+# -----------------------------------------------------------------------------
+# Submission metadata, printed at the top of the supplementary material (the
+# journal asks every electronic supplementary file to name the article, the
+# journal, the authors and the corresponding author). Update the title here
+# when the manuscript title is final and rerun `--steps supplement`.
+# -----------------------------------------------------------------------------
+[submission]
+article_title = "Support, Resolution and Segmentation Effects on Micro-CT Estimates of Porosity, Specific Surface and Box-Counting Dimension in Carbonate Rocks"
+journal = "Mathematical Geosciences"
+authors = ["Jean Firmino Cardoso", "Daiane Francisca do Nascimento Silva", "Hugo Emanuel Bezerra de Lima",
+           "Bruno Felipe de Carvalho", "Vitória Regina da Silva Bulhões", "Rebeca Carolina de Albuquerque Oliveira Lancha",
+           "Hugo Barcelar de Araújo Filho", "José Roberto da Silva", "Ivan García-Fornaris",
+           "Alexandre Carlos Araújo de Santana", "Yaicel Ge Proenza", "Abel Gámez Rodríguez", "Raquel Milani",
+           "Yelina González Pérez", "Severino Martins dos Santos Neto", "Allan Almeida Albuquerque",
+           "Clériston Moura Vieira Júnior", "Emmanuel Damilano Dutra", "Marcelo Metri Corrêa",
+           "Marcus Metri Corrêa",
+           "João Paulo Cerquinho Cajueiro", "Manoel Henriques de Sá Campos Filho", "José Miguel Reichert",
+           "Daniel Milian Pérez", "Antonio Celso Dantas Antonino"]
+corresponding_author = "Jean Firmino Cardoso"
+corresponding_affiliation = "Department of Nuclear Energy, Federal University of Pernambuco, Recife, PE, Brazil"
+corresponding_email = "jean.firmino@ufpe.br"
+
+# -----------------------------------------------------------------------------
+# Samples. `voxel_size_um = "auto"` reads the voxel size recorded by the
+# depositors in the ImageJ slice label of every TIFF
+# (e.g. "Calcite-1_OriginalImage_16bits-U_895x898x1516_45.26um0000.tif").
+# A number overrides it, but a mismatch with the metadata is logged as an error.
+# `lab_porosity_sd` is NOT reported by the depositors: it is an assumed
+# measurement uncertainty (typical of helium pycnometry, +/-0.5 p.u.) used only
+# in the porosity uncertainty budget. Replace it if the source gives a value.
+# -----------------------------------------------------------------------------
+[[samples]]
+id = "calcite1"
+label = "Limestone"
+long_label = "Indiana Limestone (Calcite-1)"
+source_name = "Calcite-1"
+image_dir = "../Calcite-1_OriginalImage_C"
+pattern = "*.tif"
+voxel_size_um = "auto"
+lab_porosity = 0.149
+lab_porosity_sd = 0.005
+color = "#2a78d6"
+# Solid-peak drift ~3 % along z. Corrected, like the dolomite: both stacks get
+# the same preprocessing (per-slice gain normalised to a constant solid peak).
+# The association between solid-peak level and slice porosity is inconclusive
+# in both samples (qc step), so this is a decision of the authors, not a
+# result; the profiles step reports the uncorrected alternative (Table T14).
+drift_correction = true
+
+[[samples]]
+id = "dolomite3"
+label = "Dolomite"
+long_label = "Silurian Dolomite (Dolomite-3)"
+source_name = "Dolomite-3"
+image_dir = "../Dolomite-3_OriginalImage_C"
+pattern = "*.tif"
+voxel_size_um = "auto"
+lab_porosity = 0.118
+lab_porosity_sd = 0.005
+color = "#eb6834"
+# Solid peak drops ~5.7 % at the top of the stack while apparent porosity
+# rises (rho < 0), as a gain (calibration) artefact would do. Corrected, like
+# the limestone (same preprocessing for both stacks); the association is not
+# significant against autocorrelated surrogates, so this is a decision of the
+# authors. Its effect is reported (profiles step, Table T14).
+drift_correction = true
+
+# -----------------------------------------------------------------------------
+# Replication of the earlier analysis of these images by the authors:
+# slices 300-599, no drift correction,
+# threshold mean - 1.1 sd, a voxel size of 28.0 um assumed for both samples,
+# marching cubes on the binary volume and porespy.metrics.boxcount (10 sizes,
+# first size dropped from the fit). Used only to reproduce the old numbers and
+# to show what changes once the metadata voxel size is used.
+# -----------------------------------------------------------------------------
+[legacy]
+z_start = 300
+z_stop = 600
+k_sigma = 1.1
+assumed_voxel_um = 28.0
+published = { calcite1 = { porosity = 0.1078, area_mm2 = 7677.93, fractal_dimension = 2.8342 }, dolomite3 = { porosity = 0.1186, area_mm2 = 8519.11, fractal_dimension = 2.7681 } }
+
+# -----------------------------------------------------------------------------
+# Pre-processing
+# -----------------------------------------------------------------------------
+[preprocessing]
+# Per-slice multiplicative correction so that the solid-peak grey level (mode)
+# is constant along z. Removes calibration (gain) drift between slices. This is
+# the default; each sample may override it (`drift_correction` in [[samples]]).
+# A gain artefact makes darker slices look more porous, i.e. a NEGATIVE
+# association between the solid-peak level and the apparent porosity of each
+# slice; a positive association points to real heterogeneity. The qc step tests
+# the association against phase-randomised surrogates (both series are almost
+# perfectly autocorrelated) and warns only when the setting contradicts a
+# significant result.
+drift_correction = true
+# Running-median window (slices) applied to the per-slice solid-peak series.
+drift_window = 31
+# Number of histogram bins spanning the 0.1-99.9 % grey-level range, used to
+# locate histogram modes.
+mode_bins = 512
+# Slab thickness (slices) for streamed processing; lower it if memory is short.
+slab = 24
+
+# -----------------------------------------------------------------------------
+# Segmentation. Grey levels are mapped onto a linear partial-volume scale
+#   f(I) = (I_s - I) / (I_s - I_p)      (0 = pure solid, 1 = pure pore)
+# with I_s the solid-peak mode and I_p the pore end-member. A voxel is "pore"
+# when f(I) > f_criterion, i.e. I < T_f = I_s - f (I_s - I_p). The same f means
+# the same physical criterion in both scans, which is not true of mean - k sd.
+# -----------------------------------------------------------------------------
+[segmentation]
+primary_f = 0.5
+f_grid = [0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.90]
+# Criteria evaluated for every morphological metric (robustness sweep).
+f_sweep = [0.25, 0.375, 0.5, 0.625, 0.75]
+# Pore end-member: grey-level quantile of the whole stack (darkest voxels).
+pore_endmember_quantile = 0.001
+# Range explored in the end-member sensitivity analysis.
+pore_endmember_quantile_range = [0.0002, 0.005]
+k_grid_min = 0.3
+k_grid_max = 2.0
+k_grid_n = 69
+# Background (sub-resolution) porosity assigned to the solid phase by the
+# depositors of the dataset; reproduced as a scenario.
+background_porosity_scenario = 0.05
+
+# -----------------------------------------------------------------------------
+# Analysis volumes (physical sizes, so that both samples are compared on equal
+# physical volumes despite their different voxel sizes).
+# -----------------------------------------------------------------------------
+[volumes]
+central_cube_mm = 20.0
+psd_cube_mm = 8.0
+esf_cube_mm = 8.0
+replicate_cube_mm = 5.0
+
+# -----------------------------------------------------------------------------
+# Box-counting fractal dimension of the pore-solid interface.
+# -----------------------------------------------------------------------------
+[fractal]
+box_min_mm = 0.06
+box_max_mm = 5.0
+n_box_sizes = 18
+min_box_voxels = 2
+# Common physical fitting range for the central cube.
+fit_min_mm = 0.1
+fit_max_mm = 2.5
+# Box sizes inside the common fitting range (end points: first and last whole-voxel
+# sizes inside [fit_min_mm, fit_max_mm] for each voxel size, so both samples and all
+# resolutions are fitted over the same window).
+n_fit_sizes = 10
+# Fitting range for the 5-mm replicate cubes.
+replicate_fit_min_mm = 0.1
+replicate_fit_max_mm = 1.25
+# Sensitivity check of the replicate D_unsat: one fixed window for every cube of
+# both samples (below the smallest observed crossover, about 0.27 mm).
+replicate_common_window_mm = [0.1, 0.28]
+n_offsets = 4
+min_window_decades = 0.8
+# Box sizes with occupancy (fraction of boxes containing interface) above this
+# value are saturated: N(s) -> V/s^3 whatever the geometry. The "unsaturated"
+# dimension is fitted only below it.
+max_occupancy = 0.5
+# A run of consecutive unsaturated box sizes whose local slopes all lie within
+# plateau_tol of their mean is reported as a (quasi-)plateau.
+plateau_tol = 0.05
+
+# -----------------------------------------------------------------------------
+# Representative elementary volume (integral-range method, Kanit et al. 2003)
+# -----------------------------------------------------------------------------
+[rev]
+block_voxels = 4
+edges_mm = [0.25, 0.5, 0.75, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0, 12.0, 15.0, 18.0, 20.0]
+n_windows = 2000
+fit_min_mm = 2.0
+target_relative_error = 0.05
+# Sampling uncertainty of alpha: moving-block bootstrap of z-slabs of the
+# block grid (slab length in mm, number of replicates).
+bootstrap_slab_mm = 8.0
+n_boot_alpha = 200
+# Monte Carlo test of alpha = 1: stationary Gaussian fields with a finite
+# integral range (Gaussian covariance of this length, longer than the measured
+# 1/e correlation lengths of 0.1-0.3 mm, which makes the test conservative),
+# analysed with the same windows and fit.
+null_corr_mm = 1.0
+null_n = 100
+
+# -----------------------------------------------------------------------------
+# Porosity profiles
+# -----------------------------------------------------------------------------
+[profiles]
+slab_mm = [0.5, 1.0, 2.0]
+comparison_slab_mm = 1.0
+
+# -----------------------------------------------------------------------------
+# Pore-size distribution (continuous, opening-based; Muench & Holzer 2008)
+# -----------------------------------------------------------------------------
+[psd]
+radii_um = [30, 45, 60, 80, 100, 130, 170, 220, 290, 380, 500, 650, 850]
+
+# -----------------------------------------------------------------------------
+# Effective resolution from edge-spread profiles
+# -----------------------------------------------------------------------------
+[esf]
+n_edges = 30000
+half_width_voxels = 14
+min_contrast = 0.6
+min_r2 = 0.97
+
+# -----------------------------------------------------------------------------
+# Resolution (coarsening) experiment: grey levels are block-averaged
+# (area-weighted) to these voxel sizes and re-segmented with the same f.
+# -----------------------------------------------------------------------------
+[resolution]
+target_voxel_um = [45.26, 67.89, 90.52, 135.78, 181.04]
+
+# -----------------------------------------------------------------------------
+# Statistics
+# -----------------------------------------------------------------------------
+[stats]
+n_boot = 5000
+confidence = 0.95
+# Phase-randomised surrogates that calibrate the trend test of the profiles.
+n_surrogates = 2000
+
+# -----------------------------------------------------------------------------
+# Figures (journal column widths in mm)
+# -----------------------------------------------------------------------------
+[figures]
+formats = ["png", "pdf"]
+dpi = 600
+font = "Arial"
+font_size = 8
+width_single_mm = 84
+width_double_mm = 174
+scale_bar_mm = 5.0

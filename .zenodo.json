@@ -1,0 +1,65 @@
+{
+  "upload_type": "software",
+  "title": "drp-carbonates v1.0.0: resolution-aware digital characterisation of carbonate micro-CT stacks",
+  "version": "1.0.0",
+  "license": "MIT",
+  "language": "eng",
+  "creators": [
+    {
+      "name": "Cardoso, Jean Firmino",
+      "orcid": "0000-0001-6092-713X",
+      "affiliation": "Department of Nuclear Energy, Federal University of Pernambuco (UFPE), Recife, Brazil"
+    },
+    {
+      "name": "Silva, Daiane Francisca do Nascimento",
+      "orcid": "0000-0002-1057-7335",
+      "affiliation": "Department of Nuclear Energy, Federal University of Pernambuco (UFPE), Recife, Brazil"
+    },
+    {
+      "name": "Santos Neto, Severino Martins dos",
+      "orcid": "0000-0003-2940-2129",
+      "affiliation": "Department of Nuclear Energy, Federal University of Pernambuco (UFPE), Recife, Brazil"
+    },
+    {
+      "name": "Reichert, José Miguel",
+      "orcid": "0000-0001-9943-2898",
+      "affiliation": "Department of Nuclear Energy, Federal University of Pernambuco (UFPE), Recife, Brazil; Department of Soils, Federal University of Pelotas (UFPel), Capão do Leão, Brazil"
+    },
+    {
+      "name": "Milian Pérez, Daniel",
+      "orcid": "0000-0002-3172-0508",
+      "affiliation": "Department of Nuclear Energy, Federal University of Pernambuco (UFPE), Recife, Brazil"
+    },
+    {
+      "name": "Antonino, Antonio Celso Dantas",
+      "orcid": "0000-0002-4120-9404",
+      "affiliation": "Department of Nuclear Energy, Federal University of Pernambuco (UFPE), Recife, Brazil"
+    }
+  ],
+  "keywords": [
+    "digital rock physics",
+    "micro-CT",
+    "carbonates",
+    "segmentation",
+    "partial volume",
+    "specific surface",
+    "box-counting dimension",
+    "representative elementary volume",
+    "Python"
+  ],
+  "related_identifiers": [
+    {
+      "relation": "references",
+      "identifier": "10.17612/V09Y-AW80",
+      "scheme": "doi",
+      "resource_type": "dataset"
+    },
+    {
+      "relation": "compiles",
+      "identifier": "10.5281/zenodo.23818173",
+      "scheme": "doi",
+      "resource_type": "dataset"
+    }
+  ],
+  "description": "Python pipeline that regenerates, with one command (python run_all.py), every number, table and figure of the article \"Support, Resolution and Segmentation Effects on Micro-CT Estimates of Porosity, Specific Surface and Box-Counting Dimension in Carbonate Rocks\" (Mathematical Geosciences, submitted) from the micro-CT images of an Indiana Limestone (Calcite-1) and a Silurian Dolomite (Dolomite-3) (Ferreira et al., doi:10.17612/V09Y-AW80). Validated by 39 tests on synthetic volumes and series with known answers. The full reconstructions are not redistributed; the cropped stacks analysed in the article are archived in the companion data record."
+}
